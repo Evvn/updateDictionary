@@ -1,0 +1,8 @@
+{
+  "name": "updateDictionary",
+  "dependencies": {
+    "airtable": "^0.5.7",
+    "dotenv": "^6.1.0",
+    "oxford-dictionary-api": "github:Evvn/oxford-dictionary-api"
+  }
+}
