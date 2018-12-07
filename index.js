@@ -33,7 +33,7 @@ removeDuplicates = (array, prop) => {
 
 wts = () => {
   // select all wordsToSearch missing definitions
-  dictionaryBase('Words to Search copy').select({view: "Grid view", filterByFormula: `NOT(Definition = BLANK()) = 0`}).eachPage(function page(records, fetchNextPage) {
+  dictionaryBase('Words to Search').select({view: "Grid view", filterByFormula: `NOT(Definition = BLANK()) = 0`}).eachPage(function page(records, fetchNextPage) {
 
     // store words & word objs missing defs. in arrays
     records.forEach(function(record) {
@@ -47,7 +47,7 @@ wts = () => {
         wordsToSearchObjs.push(wordObj);
         wordsToSearchArr.push(record.get('Word'))
       } else {
-        dictionaryBase('Words to Search copy').destroy(record.get('record id'), function(err, deletedRecord) {
+        dictionaryBase('Words to Search').destroy(record.get('record id'), function(err, deletedRecord) {
           if (err) {
             console.error(err);
             return;
@@ -63,7 +63,7 @@ wts = () => {
       console.error(err);
       return;
     }
-    wordsToSearchObjs = wordsToSearchObjs.slice(0, 4)
+
     // end of airtable base call, all objects populated to use here with no duplicates :)
     // Now, find all oxford definitions for these words HERE
     for (wordObj of wordsToSearchObjs) {
@@ -131,7 +131,7 @@ handleNewDefinition = (wordObj, cb) => {
 updateAirtableDefinitions = (updatedDefinitions) => {
 
   let oxfordDefinitions = []
-  dictionaryBase('Oxford Definitions copy').select({view: "Grid view"}).eachPage(function page(records, fetchNextPage) {
+  dictionaryBase('Oxford Definitions').select({view: "Grid view"}).eachPage(function page(records, fetchNextPage) {
 
     records.forEach(function(record) {
       oxfordDefinitions.push(record.get('Word'))
@@ -146,7 +146,7 @@ updateAirtableDefinitions = (updatedDefinitions) => {
     for (newDef of updatedDefinitions) {
       // check that word does not already exist in oxford table
       if (oxfordDefinitions.indexOf(newDef.word) === -1) {
-        dictionaryBase('Oxford Definitions copy').create({
+        dictionaryBase('Oxford Definitions').create({
           "Word": newDef.word,
           "Definition": newDef.definition
         }, function done(err) {
@@ -157,7 +157,7 @@ updateAirtableDefinitions = (updatedDefinitions) => {
         }) // end oxf airtable call here
         // if no definition, create empty def. record in mryum defs.
         if (newDef.definition === 'No definition found') {
-          dictionaryBase('Mr Yum Definitions copy').create({
+          dictionaryBase('Mr Yum Definitions').create({
             "Word": newDef.word
           }, function done(err) {
             if (err) {
@@ -166,7 +166,7 @@ updateAirtableDefinitions = (updatedDefinitions) => {
             }
           }) // if defintion exists, update wts with oxf definition  end mryum airtable call here
         } else {
-          dictionaryBase('Words to Search copy').update(newDef.recordId, {
+          dictionaryBase('Words to Search').update(newDef.recordId, {
             "Definition": newDef.definition
           }, function done(err) {
             if (err) {
@@ -180,7 +180,7 @@ updateAirtableDefinitions = (updatedDefinitions) => {
     // update wts table with mryum 'custom' definitions
     let mrYumWords = []
     let mrYumDefs = []
-    dictionaryBase('Mr Yum Definitions copy').select({
+    dictionaryBase('Mr Yum Definitions').select({
       view: "Grid view",
       filterByFormula: `NOT(Definition = BLANK()) = 1`
     }).eachPage(function page(records, fetchNextPage) {
@@ -203,7 +203,7 @@ updateAirtableDefinitions = (updatedDefinitions) => {
           // update wts with the defs
           let index = mrYumWords.indexOf(updatedDefinition.word)
 
-          dictionaryBase('Words to Search copy').update(updatedDefinition.recordId, {
+          dictionaryBase('Words to Search').update(updatedDefinition.recordId, {
             "Definition": mrYumDefs[index]['Definition']
           }, function(err, record) {
               if (err) { console.error(err); return; }
